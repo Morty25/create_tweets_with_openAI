@@ -3,7 +3,7 @@ import { Button, Card, Stack, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 
-import { APIOpenAI } from './api/openAI';
+import { APIOpenAI } from './api/openai';
 
 /* DOC */
 // prompt: Le texte saisi.
