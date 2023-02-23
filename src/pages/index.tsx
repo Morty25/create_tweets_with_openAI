@@ -1,9 +1,10 @@
 import Head from "next/head";
 import { Button, Card, Stack, TextField, Typography } from "@mui/material";
+import Textarea from "@mui/joy/Textarea";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 
-import { APIOpenAI } from './api/openai';
+import { APIOpenAI } from "./api/openai";
 
 /* DOC */
 // prompt: Le texte saisi.
@@ -67,18 +68,20 @@ const App = () => {
   const getTweet = () => {
     if (article) {
       setLoading(true);
-      APIOpenAI.getTweets(article, caratereMax).then((res: any) => {
-        if (res.status === 200) {
+      APIOpenAI.getTweets(article, caratereMax)
+        .then((res: any) => {
+          if (res.status === 200) {
             console.log(res);
-          const jsonTweet = JSON.parse(res.data.choices[0].text);
-          setTweets(jsonTweet.map((j:any) => j.tweet));
+            const jsonTweet = JSON.parse(res.data.choices[0].text);
+            console.log(jsonTweet);
+            setTweets(jsonTweet.map((j: any) => j.tweet));
+            setLoading(false);
+          }
+        })
+        .catch((e: any) => {
           setLoading(false);
-        }
-      })
-      .catch((e: any) => {
-        setLoading(false);
-        console.log(e.message, e);
-      });
+          console.log(e.message, e);
+        });
     }
   };
 
@@ -90,11 +93,7 @@ const App = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Stack
-        alignItems="center"
-        width="100%"
-        spacing={4}
-      >
+      <Stack alignItems="center" width="100%" spacing={4}>
         <Stack padding={theme.spacing(4)} sx={{ textAlign: "center" }}>
           Création de Tweet via Open AI. (GPT3)
         </Stack>
@@ -109,16 +108,20 @@ const App = () => {
           <TextField
             placeholder="Votre URL à lier (optionnel)"
             variant="outlined"
-            fullWidth
             value={urlLie}
             onChange={(e) => setUrlLie(e.target.value)}
-          />
-          <TextField
-            placeholder="Saisissez votre contenu texte (article, script, vidéo...)"
-            variant="outlined"
             fullWidth
+          />
+          <Textarea
+            placeholder="Saisissez votre contenu texte (article, script, vidéo...)"
+            minRows={3}
+            variant="outlined"
+            color="neutral"
             value={article}
             onChange={(e) => setArticle(e.target.value)}
+            sx={{
+              width: "100%",
+            }}
           />
           <Button variant="outlined" onClick={getTweet}>
             Obtenir un tweet

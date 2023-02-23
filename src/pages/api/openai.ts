@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const getTweets = async (article: string, caratereMax: number) => {
-    const commande = `Peut tu me créer un JSON avec trois tweets différents de ${caratereMax} caractère maximum grace à l'article suivant ?`;
+    const commande = `Peut tu me créer un JSON avec trois tweets différents grace à l'article suivant ?`;
     return await axios({
       method: "POST",
       url: "https://api.openai.com/v1/completions",
@@ -25,3 +25,4 @@ export const APIOpenAI = {
     getTweets: getTweets,
 };
 
+// de ${caratereMax} caractère maximum
