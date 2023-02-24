@@ -79,7 +79,11 @@ const ModalSettings = (props: IModalSettings) => {
           valueLabelDisplay="auto"
           marks={marks}
           value={temperature}
-          onChange={(e) => e.target && setTemperature(Number(e.target.value))}
+          onChange={(e, newValue) => {
+            if (e && newValue !== temperature) {
+              setTemperature(Number(newValue));
+            }
+          }}
           step={0.1}
           min={0}
           max={1}
@@ -89,7 +93,7 @@ const ModalSettings = (props: IModalSettings) => {
       <DialogContent>
         <DialogContentText>
           presence_penalty: Un nombre compris entre 0 et 1. Plus cette valeur
-          est élevée, plus le modèle fait d'efforts pour parler de nouveaux
+          est élevée, plus le modèle fait d efforts pour parler de nouveaux
           sujets.
         </DialogContentText>
       </DialogContent>
@@ -99,9 +103,11 @@ const ModalSettings = (props: IModalSettings) => {
           valueLabelDisplay="auto"
           marks={marks}
           value={presence_penalty}
-          onChange={(e) =>
-            e.target && setPresence_penalty(Number(e.target.value))
-          }
+          onChange={(e, newValue) => {
+            if (e && newValue !== presence_penalty) {
+              setPresence_penalty(Number(newValue));
+            }
+          }}
           step={0.1}
           min={0}
           max={1}
@@ -111,7 +117,7 @@ const ModalSettings = (props: IModalSettings) => {
       <DialogContent>
         <DialogContentText>
           frequency_penalty: Un nombre compris entre 0 et 1. Plus cette valeur
-          est élevée, plus le modèle fera d'efforts pour ne pas se répéter.
+          est élevée, plus le modèle fera d efforts pour ne pas se répéter.
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ width: "80%", marginLeft: "10%" }}>
@@ -120,9 +126,11 @@ const ModalSettings = (props: IModalSettings) => {
           valueLabelDisplay="auto"
           marks={marks}
           value={frequency_penalty}
-          onChange={(e) =>
-            e.target && setFrequency_penalty(Number(e.target.value))
-          }
+          onChange={(e, newValue) => {
+            if (e && newValue !== frequency_penalty) {
+              setFrequency_penalty(Number(newValue));
+            }
+          }}
           step={0.1}
           min={0}
           max={1}
@@ -192,7 +200,13 @@ const App = () => {
   const getTweet = () => {
     if (article) {
       setLoading(true);
-      APIOpenAI.getTweets(article, caratereMax, temperature, presence_penalty, frequency_penalty)
+      APIOpenAI.getTweets(
+        article,
+        caratereMax,
+        temperature,
+        presence_penalty,
+        frequency_penalty
+      )
         .then((res: any) => {
           if (res.status === 200) {
             console.log(res);
