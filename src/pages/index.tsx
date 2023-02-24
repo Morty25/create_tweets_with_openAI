@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useState } from "react";
+import { format } from "date-fns";
 
 import SettingsSuggestOutlinedIcon from "@mui/icons-material/SettingsSuggestOutlined";
 import {
@@ -167,7 +168,7 @@ interface ICardTweet {
 }
 
 const CardTweet = (props: ICardTweet) => {
-  const { tweet, url } = props;
+  const { tweet, url = "" } = props;
   const theme = useTheme();
   const disabledTweet = tweet.length + url.length > 280;
   const urlTwiter = url
@@ -180,7 +181,7 @@ const CardTweet = (props: ICardTweet) => {
       variant="outlined"
       sx={{
         maxWidth: "400px",
-        minWidth: "300px",
+        minWidth: "250px",
         padding: theme.spacing(2),
         margin: theme.spacing(2),
       }}
@@ -202,6 +203,12 @@ const CardTweet = (props: ICardTweet) => {
   );
 };
 
+interface ITweet {
+  date: string;
+  tweets: string[];
+  url: string;
+}
+
 const App = () => {
   const theme = useTheme();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -211,7 +218,7 @@ const App = () => {
   const [keyApi, setKeyApi] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [tweets, setTweets] = useState<string[]>([]);
+  const [tweets, setTweets] = useState<ITweet[]>([]);
   const [urlLie, setUrlLie] = useState<string>("");
   const [article, setArticle] = useState<string>("");
   const caratereMax = 280 - urlLie.length;
@@ -232,9 +239,15 @@ const App = () => {
             console.log(res);
             const jsonTweet = JSON.parse(res.data.choices[0].text);
             if (jsonTweet[0].tweet) {
-              setTweets(jsonTweet.map((j: any) => j.tweet));
-            } else {
-              setTweets(jsonTweet.map((j: any) => j.text));
+              const date = new Date();
+              setTweets([
+                {
+                  date: `${format(date, "k")}h : ${format(date, "m")}min`,
+                  tweets: jsonTweet.map((j: any) => j.tweet),
+                  url: urlLie,
+                },
+                ...tweets,
+              ]);
             }
             setLoading(false);
           }
@@ -263,7 +276,9 @@ const App = () => {
           width="100%"
         >
           <Stack width="24px" />
-          <Typography>Création de Tweet via Open AI. (GPT3)</Typography>
+          <Typography variant="h4">
+            Création de Tweet via Open AI. (GPT3)
+          </Typography>
           <IconButton
             color="primary"
             aria-label="settings"
@@ -279,12 +294,15 @@ const App = () => {
           width="60%"
           alignItems="center"
         >
-          <Typography>Générez facilement votre contenu pour Twitter</Typography>
+          <Typography variant="h5">
+            Générez facilement votre contenu pour Twitter
+          </Typography>
           <TextField
             placeholder="Votre URL à lier (optionnel)"
             variant="outlined"
             value={urlLie}
             onChange={(e) => setUrlLie(e.target.value)}
+            disabled={loading}
             fullWidth
           />
           <Textarea
@@ -294,6 +312,7 @@ const App = () => {
             color="neutral"
             value={article}
             onChange={(e) => setArticle(e.target.value)}
+            disabled={loading}
             sx={{
               width: "100%",
             }}
@@ -309,21 +328,29 @@ const App = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Typography>Vos tweets générés</Typography>
-          {loading ? (
-            <Stack>Loading ...</Stack>
-          ) : (
-            <Stack
-              direction="row"
-              justifyContent="space-around"
-              width="80%"
-              flexWrap="wrap"
-            >
-              {tweets.map((t) => (
-                <CardTweet tweet={t} url={urlLie} key={t} />
-              ))}
-            </Stack>
-          )}
+          <Typography variant="h5">Vos tweets générés</Typography>
+          {loading && <Stack>Loading ...</Stack>}
+          {tweets.map((t) => (
+            <>
+              <Typography sx={{ textAlign: "center" }}>
+                Généré à {t.date}
+              </Typography>
+              <Stack
+                direction="row"
+                justifyContent="space-around"
+                width="100%"
+                flexWrap="wrap"
+              >
+                {t.tweets.map((tweet) => (
+                  <CardTweet
+                    tweet={tweet}
+                    url={t.url}
+                    key={`${t.date}-${tweet}`}
+                  />
+                ))}
+              </Stack>
+            </>
+          ))}
         </Stack>
 
         <ModalSettings
