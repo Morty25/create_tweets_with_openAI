@@ -93,7 +93,7 @@ const ModalSettings = (props: IModalSettings) => {
       <DialogContent>
         <DialogContentText>
           presence_penalty: Un nombre compris entre 0 et 1. Plus cette valeur
-          est élevée, plus le modèle fait d efforts pour parler de nouveaux
+          est élevée, plus le modèle fait d'efforts pour parler de nouveaux
           sujets.
         </DialogContentText>
       </DialogContent>
@@ -117,7 +117,7 @@ const ModalSettings = (props: IModalSettings) => {
       <DialogContent>
         <DialogContentText>
           frequency_penalty: Un nombre compris entre 0 et 1. Plus cette valeur
-          est élevée, plus le modèle fera d efforts pour ne pas se répéter.
+          est élevée, plus le modèle fera d'efforts pour ne pas se répéter.
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ width: "80%", marginLeft: "10%" }}>
