@@ -24,6 +24,7 @@ import { APIOpenAI } from "./api/openai";
 // engine: OpenAI a mis à disposition quatre moteurs de complétion de texte, nommés davinci, adaet . Nous utilisons , qui est le plus capable des quatre, mais le plus lent et le plus cher si vos besoins vont au-delà du niveau gratuit disponible pour l'API.babbagecuriedavinci
 // stop: Le moteur GPT-3 ne "comprend" pas vraiment le texte, donc lorsqu'il génère du texte, il a besoin de savoir quand s'arrêter. Dans l'exemple de la construction d'un chat bot, en donnant un arrêt de "Humain :", nous disons au moteur de générer simplement du texte pour la ligne qui commence par "Bot :". Sans marqueur d'arrêt, GPT-3 continuerait à générer du texte en écrivant plus de lignes pour l'utilisateur et l'IA.
 // top_p: Une manière alternative de contrôler l'originalité et la créativité du texte généré.
+
 interface IModalSettings {
   state: boolean;
   setState: (state: boolean) => void;
@@ -33,6 +34,8 @@ interface IModalSettings {
   setPresence_penalty: (presence_penalty: number) => void;
   frequency_penalty: number;
   setFrequency_penalty: (frequency_penalty: number) => void;
+  keyApi: string;
+  setKeyApi: (keyApi: string) => void;
 }
 
 const ModalSettings = (props: IModalSettings) => {
@@ -45,6 +48,8 @@ const ModalSettings = (props: IModalSettings) => {
     setPresence_penalty,
     frequency_penalty,
     setFrequency_penalty,
+    keyApi,
+    setKeyApi,
   } = props;
 
   const marks = [0, 0.2, 0.4, 0.6, 0.8, 1].map((e) => ({
@@ -137,6 +142,19 @@ const ModalSettings = (props: IModalSettings) => {
         />
       </DialogActions>
 
+      <DialogContent>
+        <DialogContentText>Insérer ça propre clef OpenAI</DialogContentText>
+      </DialogContent>
+      <DialogActions sx={{ width: "80%", marginLeft: "10%" }}>
+        <TextField
+          placeholder="Key API"
+          variant="outlined"
+          value={keyApi}
+          onChange={(e) => setKeyApi(e.target.value)}
+          fullWidth
+        />
+      </DialogActions>
+
       <DialogActions>
         <Button onClick={() => setState(false)}>Fermer</Button>
       </DialogActions>
@@ -190,6 +208,7 @@ const App = () => {
   const [temperature, setTemperature] = useState<number>(0.5);
   const [frequency_penalty, setFrequency_penalty] = useState<number>(0.8);
   const [presence_penalty, setPresence_penalty] = useState<number>(0);
+  const [keyApi, setKeyApi] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [tweets, setTweets] = useState<string[]>([]);
@@ -205,7 +224,8 @@ const App = () => {
         caratereMax,
         temperature,
         presence_penalty,
-        frequency_penalty
+        frequency_penalty,
+        keyApi
       )
         .then((res: any) => {
           if (res.status === 200) {
@@ -315,6 +335,8 @@ const App = () => {
           setPresence_penalty={setPresence_penalty}
           frequency_penalty={frequency_penalty}
           setFrequency_penalty={setFrequency_penalty}
+          keyApi={keyApi}
+          setKeyApi={setKeyApi}
         />
       </Stack>
     </>
