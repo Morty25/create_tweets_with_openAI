@@ -223,7 +223,7 @@ const App = () => {
   const [tweets, setTweets] = useState<ITweet[]>([]);
   const [urlLie, setUrlLie] = useState<string>("");
   const [article, setArticle] = useState<string>("");
-  const caratereMax = 280 - urlLie.length;
+  const caratereMax = urlLie ? 280 : 257;
 
   useEffect(() => {
     const keyStorage = localStorage.getItem("OpenAIKey");
@@ -245,7 +245,6 @@ const App = () => {
       )
         .then((res: any) => {
           if (res.status === 200) {
-            console.log(res);
             const jsonTweet = JSON.parse(res.data.choices[0].text);
             if (jsonTweet[0].tweet) {
               const date = new Date();
