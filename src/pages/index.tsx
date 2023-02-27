@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 
 import SettingsSuggestOutlinedIcon from "@mui/icons-material/SettingsSuggestOutlined";
@@ -62,7 +62,6 @@ const ModalSettings = (props: IModalSettings) => {
     <Dialog
       open={state}
       onClose={() => setState(false)}
-      //   PaperComponent={PaperComponent}
       aria-labelledby="draggable-dialog-title"
     >
       <DialogTitle style={{ cursor: "move" }}>Paramétre</DialogTitle>
@@ -151,7 +150,10 @@ const ModalSettings = (props: IModalSettings) => {
           placeholder="Key API"
           variant="outlined"
           value={keyApi}
-          onChange={(e) => setKeyApi(e.target.value)}
+          onChange={(e) => {
+            setKeyApi(e.target.value);
+            localStorage.setItem("OpenAIKey", e.target.value);
+          }}
           fullWidth
         />
       </DialogActions>
@@ -222,6 +224,13 @@ const App = () => {
   const [urlLie, setUrlLie] = useState<string>("");
   const [article, setArticle] = useState<string>("");
   const caratereMax = 280 - urlLie.length;
+
+  useEffect(() => {
+    const keyStorage = localStorage.getItem("OpenAIKey");
+    if (keyStorage) {
+      setKeyApi(keyStorage);
+    }
+  }, []);
 
   const getTweet = () => {
     if (article) {
