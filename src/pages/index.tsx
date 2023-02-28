@@ -16,15 +16,12 @@ import {
   DialogActions,
   DialogContentText,
   Slider,
+  Switch,
 } from "@mui/material";
 import Textarea from "@mui/joy/Textarea";
 import { useTheme } from "@mui/material/styles";
 
 import { APIOpenAI } from "./api/openai";
-
-// engine: OpenAI a mis à disposition quatre moteurs de complétion de texte, nommés davinci, adaet . Nous utilisons , qui est le plus capable des quatre, mais le plus lent et le plus cher si vos besoins vont au-delà du niveau gratuit disponible pour l'API.babbagecuriedavinci
-// stop: Le moteur GPT-3 ne "comprend" pas vraiment le texte, donc lorsqu'il génère du texte, il a besoin de savoir quand s'arrêter. Dans l'exemple de la construction d'un chat bot, en donnant un arrêt de "Humain :", nous disons au moteur de générer simplement du texte pour la ligne qui commence par "Bot :". Sans marqueur d'arrêt, GPT-3 continuerait à générer du texte en écrivant plus de lignes pour l'utilisateur et l'IA.
-// top_p: Une manière alternative de contrôler l'originalité et la créativité du texte généré.
 
 interface IModalSettings {
   state: boolean;
@@ -35,8 +32,12 @@ interface IModalSettings {
   setPresence_penalty: (presence_penalty: number) => void;
   frequency_penalty: number;
   setFrequency_penalty: (frequency_penalty: number) => void;
+  top_p: number;
+  setTop_p: (top_p: number) => void;
   keyApi: string;
   setKeyApi: (keyApi: string) => void;
+  paramN: boolean;
+  setParamN: (paramN: boolean) => void;
 }
 
 const ModalSettings = (props: IModalSettings) => {
@@ -49,8 +50,12 @@ const ModalSettings = (props: IModalSettings) => {
     setPresence_penalty,
     frequency_penalty,
     setFrequency_penalty,
+    top_p,
+    setTop_p,
     keyApi,
     setKeyApi,
+    paramN,
+    setParamN,
   } = props;
 
   const marks = [0, 0.2, 0.4, 0.6, 0.8, 1].map((e) => ({
@@ -69,7 +74,9 @@ const ModalSettings = (props: IModalSettings) => {
         <DialogContentText>
           Temperature : {temperature} <br />
           Presence_penalty : {presence_penalty} <br />
-          Frequency_penalty : {frequency_penalty}
+          Frequency_penalty : {frequency_penalty} <br />
+          Top_p : {top_p} <br />
+          n : {paramN ? 'Utilisé' : 'Non utilisé'}
         </DialogContentText>
       </DialogContent>
       <DialogContent>
@@ -139,6 +146,49 @@ const ModalSettings = (props: IModalSettings) => {
           step={0.1}
           min={0}
           max={1}
+        />
+      </DialogActions>
+
+      <DialogContent>
+        <DialogContentText>
+          top_p: Une manière alternative de contrôler l'originalité et la
+          créativité du texte généré.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions sx={{ width: "80%", marginLeft: "10%" }}>
+        <Slider
+          aria-label="Top_p"
+          valueLabelDisplay="auto"
+          marks={marks}
+          value={top_p}
+          onChange={(e, newValue) => {
+            if (e && newValue !== top_p) {
+              setTop_p(Number(newValue));
+            }
+          }}
+          step={0.1}
+          min={0}
+          max={1}
+        />
+      </DialogActions>
+
+      <DialogContent>
+        <DialogContentText>
+          Utilisé ou non le paramétre de nombre dans la requete : n
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions
+        sx={{
+          width: "80%",
+          marginLeft: "10%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Switch
+          checked={paramN}
+          onChange={(e) => setParamN(e.target.checked)}
+          inputProps={{ "aria-label": "controlled" }}
         />
       </DialogActions>
 
@@ -217,7 +267,9 @@ const App = () => {
   const [temperature, setTemperature] = useState<number>(0.5);
   const [frequency_penalty, setFrequency_penalty] = useState<number>(0.8);
   const [presence_penalty, setPresence_penalty] = useState<number>(0);
+  const [top_p, setTop_p] = useState<number>(0);
   const [keyApi, setKeyApi] = useState<string>("");
+  const [paramN, setParamN] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [tweets, setTweets] = useState<ITweet[]>([]);
@@ -241,6 +293,7 @@ const App = () => {
         temperature,
         presence_penalty,
         frequency_penalty,
+        top_p,
         keyApi
       )
         .then((res: any) => {
@@ -257,6 +310,39 @@ const App = () => {
                 ...tweets,
               ]);
             }
+            setLoading(false);
+          }
+        })
+        .catch((e: any) => {
+          setLoading(false);
+          console.log(e.message, e);
+        });
+    }
+  };
+
+  const getTweetWithN = () => {
+    if (article) {
+      setLoading(true);
+      APIOpenAI.getTweetsWithN(
+        article,
+        caratereMax,
+        temperature,
+        presence_penalty,
+        frequency_penalty,
+        top_p,
+        keyApi
+      )
+        .then((res: any) => {
+          if (res.status === 200) {
+            const date = new Date();
+            setTweets([
+              {
+                date: `${format(date, "k")}h : ${format(date, "m")}min`,
+                tweets: res.data.choices.map((j: any) => j.text),
+                url: urlLie,
+              },
+              ...tweets,
+            ]);
             setLoading(false);
           }
         })
@@ -325,7 +411,10 @@ const App = () => {
               width: "100%",
             }}
           />
-          <Button variant="outlined" onClick={getTweet}>
+          <Button
+            variant="outlined"
+            onClick={paramN ? getTweetWithN : getTweet}
+          >
             Obtenir un tweet
           </Button>
         </Stack>
@@ -349,11 +438,11 @@ const App = () => {
                 width="100%"
                 flexWrap="wrap"
               >
-                {t.tweets.map((tweet) => (
+                {t.tweets.map((tweet, index) => (
                   <CardTweet
                     tweet={tweet}
                     url={t.url}
-                    key={`${t.date}-${tweet}`}
+                    key={`${t.date}-${tweet}-${index}`}
                   />
                 ))}
               </Stack>
@@ -370,8 +459,12 @@ const App = () => {
           setPresence_penalty={setPresence_penalty}
           frequency_penalty={frequency_penalty}
           setFrequency_penalty={setFrequency_penalty}
+          top_p={top_p}
+          setTop_p={setTop_p}
           keyApi={keyApi}
           setKeyApi={setKeyApi}
+          paramN={paramN}
+          setParamN={setParamN}
         />
       </Stack>
     </>
