@@ -17,6 +17,8 @@ import {
   DialogContentText,
   Slider,
   Switch,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import Textarea from "@mui/joy/Textarea";
 import { useTheme } from "@mui/material/styles";
@@ -38,6 +40,8 @@ interface IModalSettings {
   setKeyApi: (keyApi: string) => void;
   paramN: boolean;
   setParamN: (paramN: boolean) => void;
+  langue: string;
+  setLangue: (langue: string) => void;
 }
 
 const ModalSettings = (props: IModalSettings) => {
@@ -56,6 +60,8 @@ const ModalSettings = (props: IModalSettings) => {
     setKeyApi,
     paramN,
     setParamN,
+    langue,
+    setLangue,
   } = props;
 
   const marks = [0, 0.2, 0.4, 0.6, 0.8, 1].map((e) => ({
@@ -75,8 +81,7 @@ const ModalSettings = (props: IModalSettings) => {
           Temperature : {temperature} <br />
           Presence_penalty : {presence_penalty} <br />
           Frequency_penalty : {frequency_penalty} <br />
-          Top_p : {top_p} <br />
-          n : {paramN ? 'Utilisé' : 'Non utilisé'}
+          Top_p : {top_p} <br />n : {paramN ? "Utilisé" : "Non utilisé"}
         </DialogContentText>
       </DialogContent>
       <DialogContent>
@@ -193,6 +198,28 @@ const ModalSettings = (props: IModalSettings) => {
       </DialogActions>
 
       <DialogContent>
+        <DialogContentText>Forcé une langue de réponse</DialogContentText>
+      </DialogContent>
+      <DialogActions
+        sx={{
+          width: "80%",
+          marginLeft: "10%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Select
+          value={langue}
+          label="language"
+          onChange={(e) => setLangue(e.target.value)}
+        >
+          <MenuItem value="none">Utilisé la langue de l'article</MenuItem>
+          <MenuItem value="Anglais">Anglais</MenuItem>
+          <MenuItem value="Francais">Francais</MenuItem>
+        </Select>
+      </DialogActions>
+
+      <DialogContent>
         <DialogContentText>Insérer ça propre clef OpenAI</DialogContentText>
       </DialogContent>
       <DialogActions sx={{ width: "80%", marginLeft: "10%" }}>
@@ -270,6 +297,7 @@ const App = () => {
   const [top_p, setTop_p] = useState<number>(0);
   const [keyApi, setKeyApi] = useState<string>("");
   const [paramN, setParamN] = useState<boolean>(false);
+  const [langue, setLangue] = useState<string>("none");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [tweets, setTweets] = useState<ITweet[]>([]);
@@ -294,7 +322,8 @@ const App = () => {
         presence_penalty,
         frequency_penalty,
         top_p,
-        keyApi
+        keyApi,
+        langue
       )
         .then((res: any) => {
           if (res.status === 200) {
@@ -330,7 +359,8 @@ const App = () => {
         presence_penalty,
         frequency_penalty,
         top_p,
-        keyApi
+        keyApi,
+        langue
       )
         .then((res: any) => {
           if (res.status === 200) {
@@ -465,6 +495,8 @@ const App = () => {
           setKeyApi={setKeyApi}
           paramN={paramN}
           setParamN={setParamN}
+          langue={langue}
+          setLangue={setLangue}
         />
       </Stack>
     </>

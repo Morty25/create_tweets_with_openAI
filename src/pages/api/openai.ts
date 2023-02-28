@@ -9,14 +9,15 @@ const getTweets = async (
   presence_penalty: number,
   frequency_penalty: number,
   top_p: number,
-  keyApi?: string
+  keyApi?: string,
+  langue?: string
 ) => {
-  const commande = `Créer trois tweets différents grace à l'article suivant, votre réponse doit être au format JSON et respecter chaque contraite`;
-  const contraite = [
+  const commande = `Créer trois tweets différents grace à l'article suivant, votre réponse doit être au format JSON et respecter les contraites`;
+  const contraites = [
         '- Chaque tweet doit contenir un hastag au minimum',
         `- Chaque tweet ne dois pas dépasser ${caratereMax} caractères`,
-        "- Utilisé la langue de l'article",
-        '- Les tweets ne doivent pas étre numéroté dans le JSON'
+        '- Les tweets ne doivent pas étre numéroté dans le JSON',
+        langue === 'none' ? "- Utiliser la langue de l'article" : `- La langue a utilisé : ${langue}`,
     ];
   const keyUse =
     keyApi && keyApi.length > 0 ? keyApi : process.env.OPENAI_API_KEY;
@@ -25,9 +26,9 @@ const getTweets = async (
     url: "https://api.openai.com/v1/completions",
     data: {
       model: "text-davinci-003",
-      prompt: `${commande} contraite: (${contraite.join(' ')})  article: (${article})`,
+      prompt: `${commande} contraites: (${contraites.join(' ')})  article: (${article})`,
       temperature: temperature,
-      max_tokens: caratereMax * 3,
+        max_tokens: Math.round(caratereMax * 3), // Max Token volontairement haut pour éviter que le JSON ne soit coupé
       top_p: top_p,
       frequency_penalty: frequency_penalty,
       presence_penalty: presence_penalty,
@@ -46,13 +47,14 @@ const getTweetsWithN = async (
     presence_penalty: number,
     frequency_penalty: number,
     top_p: number,
-    keyApi?: string
+    keyApi?: string,
+    langue?: string
   ) => {
-    const commande = `Créer un tweet grace à l'article suivant et respecter chaque contraite`;
-    const contraite = [
+    const commande = `Créer un tweet grace à l'article suivant et respecter les contraites`;
+    const contraites = [
         '- Chaque tweet doit contenir un hastag au minimum',
         `- Chaque tweet ne dois pas dépasser ${caratereMax} caractères`,
-        "- Utilisé la langue de l'article",
+        langue === 'none' ? "- Utiliser la langue de l'article" : `- La langue a utilisé : ${langue}`,
     ];
     const keyUse =
       keyApi && keyApi.length > 0 ? keyApi : process.env.OPENAI_API_KEY;
@@ -62,9 +64,9 @@ const getTweetsWithN = async (
       url: "https://api.openai.com/v1/completions",
       data: {
         model: "text-davinci-003",
-        prompt: `${commande} contraite: (${contraite.join(' ')})  article: (${article})`,
+        prompt: `${commande} contraites: (${contraites.join(' ')})  article: (${article})`,
         temperature: temperature,
-        max_tokens: caratereMax * nbrTweet,
+        max_tokens: Math.round(caratereMax), // Max Token volontairement haut pour éviter que le tweet ne soit coupé
         top_p: top_p,
         n: nbrTweet,
         frequency_penalty: frequency_penalty,
