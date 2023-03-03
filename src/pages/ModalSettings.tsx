@@ -73,7 +73,7 @@ const ModalSettings = (props: IModalSettings) => {
       </DialogContent>
       <DialogContent>
         <DialogContentText>
-          temperature : nombre compris entre 0 et 1 qui détermine le nombre de
+          temperature: nombre compris entre 0 et 1 qui détermine le nombre de
           risques créatifs pris par le moteur lors de la génération de texte.
         </DialogContentText>
       </DialogContent>
@@ -166,7 +166,7 @@ const ModalSettings = (props: IModalSettings) => {
 
       <DialogContent>
         <DialogContentText>
-          Utilisé ou non le paramétre de nombre dans la requete : n
+          Utilisé ou non le paramétre de nombre dans la requete: n
         </DialogContentText>
       </DialogContent>
       <DialogActions
